@@ -1,0 +1,6 @@
+[submodule "cores/topwrap_axi_core_plugin/topwrap_axi_core_plugin/third_party/axi"]
+	path = cores/topwrap_axi_core_plugin/topwrap_axi_core_plugin/third_party/axi
+	url = https://github.com/pulp-platform/axi
+[submodule "cores/topwrap_axi_core_plugin/topwrap_axi_core_plugin/third_party/common_cells"]
+	path = cores/topwrap_axi_core_plugin/topwrap_axi_core_plugin/third_party/common_cells
+	url = https://github.com/pulp-platform/common_cells

@@ -1,0 +1,21 @@
+[project]
+name = "topwrap_axi_core_plugin"
+version = "0.0.1"
+requires-python = ">=3.9"
+authors = [{name = "Antmicro"}]
+description = ""
+dependencies = [
+  "PyYAML"
+]
+
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-data]
+topwrap_axi_core_plugin = [
+  "**/*.sv",
+  "**/*.v",
+  "**/*.svh"
+]

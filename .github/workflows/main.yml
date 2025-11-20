@@ -1,0 +1,33 @@
+name: Package core for Topwrap
+
+on: [push, pull_request]
+
+jobs:
+  build_plugins:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: astral-sh/setup-uv@v5
+      - name: Build topwrap_axi_core_plugin
+        run: uv build cores/topwrap_axi_core_plugin
+      - name: Upload wheels as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: topwrap_axi_core_plugin
+          path: cores/topwrap_axi_core_plugin/dist/*.whl
+
+  publish-package:
+    runs-on: ubuntu-22.04
+    needs: [build_plugins]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: topwrap_axi_core_plugin
+          path: dist
+      - uses: pyTooling/Actions/releaser@r0
+        with:
+          token: ${{ github.token }}
+          files: dist/*.whl
