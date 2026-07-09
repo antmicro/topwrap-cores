@@ -1,0 +1,10 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+__pycache__/
+*.pyc
+.venv/
+build/
+dist/
+*.egg-info/
+.ruff_cache/

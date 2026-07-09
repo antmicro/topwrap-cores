@@ -1,0 +1,23 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+generateds_version := "2.44.3"
+patches_dir := justfile_directory() / "patches"
+ipxact_schema_repo := "https://github.com/edaa-org/IPXACT-Schema"
+
+# Run the small parsing example
+example:
+    uv run examples/parse_example.py
+
+# Regenerate the parser using generateDS and the IP-XACT schema
+regenerate:
+    rm -rf generateDS-{{generateds_version}} generateDS-{{generateds_version}}-py3-none-any.whl ipxact-schema
+    pip download generateDS=={{generateds_version}} --no-deps -d .
+    unzip -q generateDS-{{generateds_version}}-py3-none-any.whl -d generateDS-{{generateds_version}}
+    cd generateDS-{{generateds_version}}/generateDS-{{generateds_version}}.data/scripts && \
+        patch -p1 < {{patches_dir}}/0001-Add-no-pattern-validator-flag.patch
+    pip install six lxml "requests>=2.21.0"
+    git clone --depth 1 {{ipxact_schema_repo}} ipxact-schema
+    python3 generateDS-{{generateds_version}}/generateDS-{{generateds_version}}.data/scripts/generateDS.py \
+        -f -o topwrap_ipxact_parser/__init__.py --no-pattern-validator \
+        ipxact-schema/ieee-1685-2022/index.xsd
