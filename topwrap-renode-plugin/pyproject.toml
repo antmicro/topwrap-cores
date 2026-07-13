@@ -1,0 +1,23 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "topwrap-renode-plugin"
+version = "0.1.0"
+description = "A plugin for generating .repl files from a topwrap design"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "topwrap @ git+https://github.com/antmicro/topwrap.git"
+]
+
+[project.entry-points."topwrap.plugins"]
+renode_plugin = "renode_plugin.main:RenodePeripheralGen"
+
+[tool.setuptools]
+packages = ["renode_plugin"]
+

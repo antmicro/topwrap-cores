@@ -1,0 +1,78 @@
+# Initial code
+pick ddad44a # empty
+pick ab0460f Add .gitignore
+drop 1d2472a requirements: internal version of topwrap
+drop 670b208 Migrate plugin
+drop 81975bc Remove wrong setup
+reword 2220b63 Add plugin as python package
+squash 6fee076 Add copyright notice
+squash bcb1ba9 Add trailing newline to output
+squash 0ceed03 Using uv-initialized package
+squash 36a7206 Allow oldest release that is not EOL
+squash c601a26 Don't specify repo in dependencies
+squash 4a62962 lint: format
+squash b6de654 dev: wishbone interconnect
+
+# Tests
+reword dbcedc5 Simple test
+squash adbd6c6 Convenience script for running all tests
+squash ff3411c Add copyright
+squash c62548c Readme section in examples folder
+squash 5b698ae Render the path in README
+squash 98893e9 module name should match test-name
+squash ec45097 tests: memory map generation
+squash 89f50ba tests: also map settings
+squash 8c073ca tests: update description
+
+reword 46aaf32 CI: add initial CI script
+squash b812dcf CI: install dependencies
+squash 825a5b6 CI: fix typo
+squash b02d37c CI: more dependencies
+squash ce7c979 ci: build stage
+
+# Readme + docs
+reword cd5c1a8 Updated readme
+squash 17dd56f readme: update example section
+squash ff64328 Docs: add syntax WIP syntax explination
+squash b64b902 Improve example and clarify docs
+squash 3a3ddc9 fix: spelling
+squash 84d28f3 docs: introduce docs template
+squash 4f8899c docs: syntax
+squash c5a9873 docs: introduction
+squash f0be25b docs: placeholder usage
+squash 5f8c41b docs: more content
+squash edbd0b6 Readme: update phrasing
+
+pick cf50c1a topwrap: bump to latest dev-version
+pick d2781f1 ci: use uv
+
+# Rebase 587d501..edbd0b6 onto 587d501 (40 commands)
+#
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, but meld into previous commit
+# f, fixup [-C | -c] <commit> = like "squash" but keep only the previous
+#                    commit's log message, unless -C is used, in which case
+#                    keep only this commit's message; -c is same as -C but
+#                    opens the editor
+# x, exec <command> = run command (the rest of the line) using shell
+# b, break = stop here (continue rebase later with 'git rebase --continue')
+# d, drop <commit> = remove commit
+# l, label <label> = label current HEAD with a name
+# t, reset <label> = reset HEAD to a label
+# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+#         create a merge commit using the original merge commit's
+#         message (or the oneline, if no original merge commit was
+#         specified); use -c <commit> to reword the commit message
+# u, update-ref <ref> = track a placeholder for the <ref> to be updated
+#                       to this position in the new commits. The <ref> is
+#                       updated at the end of the rebase
+#
+# These lines can be re-ordered; they are executed from top to bottom.
+#
+# If you remove a line here THAT COMMIT WILL BE LOST.
+#
+# However, if you remove everything, the rebase will be aborted.
+#

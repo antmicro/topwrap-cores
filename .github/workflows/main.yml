@@ -25,6 +25,13 @@ jobs:
         with:
           name: topwrap_ipxact_parser
           path: topwrap-ipxact-parser/dist/*.whl
+      - name: Build topwrap-renode-plugin
+        run: uv build topwrap-renode-plugin
+      - name: Upload topwrap-renode-plugin wheel as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: topwrap_renode_plugin
+          path: topwrap-renode-plugin/dist/*.whl
 
   publish-package:
     runs-on: ubuntu-22.04
@@ -37,6 +44,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: topwrap_ipxact_parser
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: topwrap_renode_plugin
           path: dist
       - uses: pyTooling/Actions/releaser@r0
         with:

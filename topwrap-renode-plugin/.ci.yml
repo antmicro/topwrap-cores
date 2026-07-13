@@ -1,0 +1,42 @@
+stages:
+  - build
+
+build_examples:
+  variables:
+    SCALENODE_CPU: 1
+    SCALENODE_RAM: 4096
+    SCALENODE_DISK: 5
+  stage: build
+  image: ghcr.io/astral-sh/uv:debian-slim
+  before_get_sources:
+    - apt -y update &> /dev/null
+    - apt -y install python3 git make &> /dev/null
+  script:
+    - git config --global url."https://gitlab-ci-token:$CI_BUILD_TOKEN@dev.antmicro.com/".insteadOf "https://dev.antmicro.com/"
+    - uv venv
+    - uv run make -C examples
+  artifacts:
+    paths:
+      - examples/**/build
+
+build_docs:
+  stage: build
+  image: $CI_DOCS_DOCKER_IMAGE
+  before_get_sources:
+    - apt-get update
+    - apt-get install python3-venv python3-pip python3 -y
+  before_script:
+    - cd docs/
+    - python3 -m venv .venv/
+    - source .venv/bin/activate
+    - pip3 install -r requirements.txt
+  script:
+    - cd docs/
+    - source .venv/bin/activate
+    - make html latexpdf
+    - cp build/latex/*.pdf build/html/
+    - tar cf $CI_DOCS_ARCHIVE -C build/html/ .
+  artifacts:
+    paths:
+      - build
+      - $CI_DOCS_ARCHIVE
