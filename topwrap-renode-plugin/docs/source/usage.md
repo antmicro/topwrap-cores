@@ -20,11 +20,7 @@ In order to generate a REPL for a design, the plugin takes as input metadata tha
 This metadata is specified in the Topwrap design YAML (see [syntax](./syntax.md)) and requires familiarity with the [Design description format](https://antmicro.github.io/topwrap/description_files.html#design-description).
 There is no inference of assignments, so this step is **required**.
 
-**TODO**: the metadata is implied via the syntax to exist in the top-level design, although it could be specified anywhere within the project.
-
 ## Generating platform definitions
-
-**TODO**: This is referencing undocumented behaviour in topwrap.
 
 The plugin is automatically invoked by Topwrap's plugin manager during the build process (see the [Getting started](https://antmicro.github.io/topwrap/getting_started.html#getting-started) guide) if it is installed using a python package manager, like [pip](https://pypi.org/project/pip/) or [uv](https://docs.astral.sh/uv/).
 
@@ -32,13 +28,11 @@ The plugin is automatically invoked by Topwrap's plugin manager during the build
 
 The [examples directory](https://github.com/antmicro/topwrap-plugins/tree/main/renode_plugin/examples) contain example designs and makefiles for building them. Assuming you have an existing Topwrap design with all Renode metadata filled in, the following commands would create REPL-files as an artifact while building the top-level design:
 
-**TODO**: This script makes assumptions about the puplished url's. It's a guess.
-
 ```bash
 cd path/to/project # contains topwrap.yaml and design description
 uv venv
 uv pip install "topwrap @ git+https://github.com/antmicro/topwrap"
-uv pip install "renode_plugin @ git+https://github.com/antmicro/topwrap-plugins#subdirectory=renode_plugin"
+uv pip install "topwrap-renode-plugin @ git+https://github.com/antmicro/topwrap-cores.git@renode-plugin#subdirectory=topwrap-renode-plugin"
 uv run topwrap build -d . -b build
 ```
 

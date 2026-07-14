@@ -21,3 +21,33 @@ renode_plugin = "renode_plugin.main:RenodePeripheralGen"
 [tool.setuptools]
 packages = ["renode_plugin"]
 
+[project.optional-dependencies]
+lint = [
+  "codespell==2.3.0",
+  "ruff==0.12.1"
+]
+
+[tool.ruff]
+line-length = 100
+extend-exclude = [
+  "__pycache__",
+  ".venv",
+  "uv.lock"
+]
+
+[tool.ruff.lint]
+select = [
+  "B",
+  "C9",
+  "E",
+  "F",
+  "I",
+  "W",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 18
+
+[tool.codespell]
+skip = "build,.venv,.git,__pycache__,uv.lock"
+ignore-words-list = "inout, inouts"

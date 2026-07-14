@@ -1,13 +1,12 @@
 # Copyright (c) 2026 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from re import compile
 from re import escape as escape_regex
-
-from typing_extensions import Any, Callable, Iterable, cast, override, Union
 
 from topwrap.interconnects.axi import AXIInterconnect
 from topwrap.interconnects.wishbone_rr import WishboneInterconnect
@@ -17,11 +16,17 @@ from topwrap.model.connections import (
     InterfaceConnection,
     ReferencedInterface,
 )
-from topwrap.model.interconnect import Interconnect, InterconnectSubordinateParams, InterconnectManagerParams
 from topwrap.model.design import Design, ModuleInstance
-from topwrap.model.misc import Identifier, VariableName, ObjectId
-from topwrap.model.module import Module
+from topwrap.model.interconnect import (
+    Interconnect,
+    InterconnectManagerParams,
+    InterconnectSubordinateParams,
+)
+from topwrap.model.misc import Identifier, ObjectId, VariableName
 from topwrap.plugin.base import BasePlugin, BuildContext
+from typing_extensions import Any, Callable, Iterable, Union, cast
+
+logger = logging.getLogger(__name__)
 
 RENODE_GUEST_PAGE_SIZE = 0x1000
 
@@ -35,7 +40,9 @@ class RenodeValue(ABC):
 
 
 def get_pretty_bytes(i: int) -> int:
-    assert i >= 0, "invalid input"
+    if i < 0:
+        logging.error(f"invalid input: {i}")
+        exit(1)
 
     exp = 1
     while 2 ** (8 * exp) <= i:
@@ -59,9 +66,7 @@ class RenodeValueInt(RenodeValue):
         return str(self.i)
 
 
-def find_by_io_con(
-    target_name: str, interface_name: str
-) -> Callable[[Connection], bool]:
+def find_by_io_con(target_name: str, interface_name: str) -> Callable[[Connection], bool]:
     def _wrapped(con: Connection) -> bool:
         return (
             con.target.io.name == interface_name
@@ -100,9 +105,7 @@ class RenodeDevice:
         row.append(f"{self.name}: {self.device_name} @ sysbus")
 
         if self.memory_map:
-            addr = render_hex(
-                self.memory_map.offset, get_pretty_bytes(self.memory_map.offset)
-            )
+            addr = render_hex(self.memory_map.offset, get_pretty_bytes(self.memory_map.offset))
             aligned_size = self.memory_map.get_aligned_size(RENODE_GUEST_PAGE_SIZE)
             if aligned_size:
                 # align to guest page 0x1000
@@ -145,7 +148,9 @@ class FieldResolver(ABC):
     @staticmethod
     def parse(dest: str, src: str) -> "FieldResolver":
         m = _QUERY_RE.fullmatch(src)
-        assert m, "query has to compile"
+        if not m:
+            logger.error("Failed to compile regular expression for query")
+            exit(1)
 
         property_source = m["source"]
         property_symbol = m["symbol"]
@@ -157,15 +162,24 @@ class ResolveMemoryMapProperty(FieldResolver):
     def get_parameter(
         self, instance: ModuleInstance, mm: RenodeMemoryMap | None
     ) -> tuple[str, RenodeValue]:
-        assert mm, "memory map has to exist to resolve it's properties"
+        if not mm:
+            logger.error("Tried to resolve a memory-map property for non-existent memory-map")
+            exit(1)
 
         if self.symbol == "size":
             memory_size = mm.get_aligned_size(RENODE_GUEST_PAGE_SIZE)
-            assert memory_size, "size requested when it does not exist"
+            if not memory_size:
+                logger.error("Size does not exist for memory map")
+                exit(1)
 
             return self.dest, RenodeValueInt(memory_size, True)
 
-        raise AssertionError(f"memory map property not supported: {self.symbol}")
+        if self.symbol == "address":
+            address = mm.offset
+            return self.dest, RenodeValueInt(address, True)
+
+        logger.error(f"The following memory map property is not supported: {self.symbol}")
+        exit(1)
 
 
 class ResolveConnectionspProperty(FieldResolver):
@@ -175,13 +189,18 @@ class ResolveConnectionspProperty(FieldResolver):
         design = instance.parent
         con = design.connections.find_by(find_by_io_con(instance.name, self.symbol))
 
-        assert con is not None, f"connection property {self.symbol} not found"
-        assert isinstance(con, ConstantConnection), (
-            f"only static connections are supported: {self.symbol}"
-        )
+        if con is None:
+            logging.error(f"connection property {self.symbol} not found")
+            exit(1)
+
+        if not isinstance(con, ConstantConnection):
+            logging.error(f"only static connections are supported: {self.symbol}")
+            exit(1)
 
         value = con.source.elaborate()
-        assert value is not None, "the connections source needs to exist"
+        if value is None:
+            logging.error(f"therese no source to the following connection {self.symbol}")
+            exit(1)
 
         return self.dest, RenodeValueInt(value, False)
 
@@ -191,9 +210,7 @@ _SOURCE_MAP = {
     "connections": ResolveConnectionspProperty,
 }
 _QUERY_RE = compile(
-    r"^\.(?P<source>"
-    + "|".join(map(escape_regex, _SOURCE_MAP.keys()))
-    + r")\.(?P<symbol>\b\w+\b)$"
+    r"^\.(?P<source>" + "|".join(map(escape_regex, _SOURCE_MAP.keys())) + r")\.(?P<symbol>\b\w+\b)$"
 )
 
 
@@ -219,7 +236,9 @@ class RenodeDeviceFieldResolve:
         fields = {}
         for resolver in self.resolvers:
             key, val = resolver.get_parameter(instance, mm)
-            assert key not in fields, "two resolvers have the same target property"
+            if key in fields:
+                logging.error(f"two mappings target the same dest: {key}")
+                exit(1)
             fields[key] = val
         return fields
 
@@ -243,6 +262,7 @@ class RenodeMapping:
                 continue
 
             mapping.mapping[instance.name] = (instance, resolver)
+            logging.info(f"Assigning Renode peripheal {resolver.dev} to {instance.name}")
 
         return mapping
 
@@ -259,37 +279,50 @@ class InterconnectionWrapper:
     intercon: Union["AXIInterconnect", "WishboneInterconnect"]
 
     def __init__(self, intercon: Interconnect):
-        assert isinstance(intercon, AXIInterconnect) or isinstance(intercon, WishboneInterconnect), "only axi/wishbone supported"
+        if not (
+            isinstance(intercon, AXIInterconnect) or isinstance(intercon, WishboneInterconnect)
+        ):
+            logging.error("only axi/wishbone interconnects are supported")
+            exit(1)
         self.intercon = intercon
 
-    def get_managers(self) -> Iterable[tuple[ObjectId[ReferencedInterface], InterconnectManagerParams]]:
+    def get_managers(
+        self,
+    ) -> Iterable[tuple[ObjectId[ReferencedInterface], InterconnectManagerParams]]:
         return self.intercon.managers.items()
-    
-    def get_subordinates(self) -> Iterable[tuple[ObjectId[ReferencedInterface], InterconnectSubordinateParams]]:
+
+    def get_subordinates(
+        self,
+    ) -> Iterable[tuple[ObjectId[ReferencedInterface], InterconnectSubordinateParams]]:
         return self.intercon.subordinates.items()
 
-def resolve_memory_mapping(
-    design: Design, mapping: RenodeMapping
-) -> dict[VariableName, RenodeMemoryMap | None]:
-    intercon = list(design.interconnects)
 
-    assert len(intercon) == 1, "There has to be an interconnection network"
-    intercon = InterconnectionWrapper(intercon[0])
-
-    mm: dict[VariableName, RenodeMemoryMap | None] = {}
-
+def _get_mmap_managers(
+    intercon: InterconnectionWrapper, mapping: RenodeMapping
+) -> list[VariableName]:
     # Resolve managers first, assuming interfaces can be grouped
     unique_manager_instances: set[VariableName] = set()
     for _interface, _ in intercon.get_managers():
         interface = _interface.resolve()
         instance = interface.instance
-        assert instance, "the interface needs to be instantiated"
+
+        if not instance:
+            logging.error("A manager needs an instantiated interface")
+            exit(1)
+
         unique_manager_instances.add(instance.name)
 
     for manager in unique_manager_instances:
-        assert manager in mapping, "manager has to be realizable in Renode"
-        mm[manager] = None
+        if manager not in mapping:
+            logging.error("A manager has to be mapped to a Renode peripheral")
+            exit(1)
 
+    return list(unique_manager_instances)
+
+
+def _get_subordinate_mmap(
+    intercon: InterconnectionWrapper,
+) -> list[tuple[ReferencedInterface, RenodeMemoryMap]]:
     # Resolve subordinates by walking interface connections, inheriting the
     # top-level memory map
     unresolved_stack: list[tuple[ReferencedInterface, RenodeMemoryMap]] = []
@@ -297,21 +330,47 @@ def resolve_memory_mapping(
         sub_int = obid.resolve()
 
         sub_inst = sub_int.instance
-        assert sub_inst, "subordinate needs to be an instance"
+        if not sub_inst:
+            logging.error("A subordinate needs to be an instance")
+            exit(1)
 
         addr = sub.address.elaborate()
-        assert addr is not None, f"subordinate {sub_inst.name} needs an address"
+        if addr is None:
+            logging.error(f"Subordinate {sub_inst.name} needs an address")
+            exit(1)
 
         size = sub.size.elaborate()
-        assert size is not None, "subordinate needs a size" 
+        if size is None:
+            logging.error(f"Subordinate {sub_inst.name} needs a size")
+            exit(1)
 
         rmm = RenodeMemoryMap(addr, size)
 
-        if sub_inst.name in mapping:
-            mm[sub_inst.name] = rmm
-            continue
-
         unresolved_stack.append((sub_int, rmm))
+
+    return unresolved_stack
+
+
+def resolve_memorymap(
+    design: Design, mapping: RenodeMapping
+) -> dict[VariableName, RenodeMemoryMap | None]:
+    intercon = list(design.interconnects)
+
+    if len(intercon) == 0:
+        logging.error("Design is missing an interconnection network")
+        exit(1)
+
+    if len(intercon) > 1:
+        logging.error("Multiple interconnection networks are not supported")
+        exit(1)
+    intercon = InterconnectionWrapper(intercon[0])
+
+    mm: dict[VariableName, RenodeMemoryMap | None] = {}
+
+    for manager in _get_mmap_managers(intercon, mapping):
+        mm[manager] = None
+
+    unresolved_stack = _get_subordinate_mmap(intercon)
 
     def is_outgoing_connection(name: str) -> Callable[[Connection], bool]:
         def _wrapper(con: Connection) -> bool:
@@ -319,28 +378,35 @@ def resolve_memory_mapping(
             if not isinstance(src, ReferencedInterface):
                 return False
 
-            assert src.instance, "the source of an interface connection needs to be instantiated"
+            if not src.instance:
+                logging.error("The the source of a interface needs to be an instance")
+                exit(1)
+
             return name == src.instance.name
 
         return _wrapper
 
     while unresolved_stack:
         interface, rmm = unresolved_stack.pop()
-        assert interface.instance, "interface needs to be instantiated"
+        if not interface.instance:
+            logging.error("Interfaces needs to be instantiated")
+            exit(1)
 
-        edge = design.connections.find_by(
-            is_outgoing_connection(interface.instance.name)
-        )
-        # TODO: there should there be an option to drop it?
-        assert edge is not None, f"{interface.instance.name} is a leaf, but is missing a mapped Renode device"
-        assert isinstance(edge, InterfaceConnection), "is_outgoing_connection is buggy"
-
-        child_node = edge.target.instance
-        assert child_node, "interface connection needs an instantiated target"
-
-        if child_node.name in mapping:
-            mm[child_node.name] = rmm
+        if interface.instance.name in mapping:
+            mm[interface.instance.name] = rmm
             continue
+
+        edge = design.connections.find_by(is_outgoing_connection(interface.instance.name))
+        if edge is None:
+            logging.error(
+                f"{interface.instance.name} is a leaf, but is missing a mapped Renode device"
+            )
+            exit(1)
+
+        if not isinstance(edge, InterfaceConnection):
+            logging.error("is_outgoing_connection is buggy")
+            exit(1)
+
         unresolved_stack.append((edge.target, rmm))
 
     return mm
@@ -351,24 +417,54 @@ def create_resolvers(mod: Design) -> list[RenodeDeviceFieldResolve]:
 
     data = metadata.data
 
-    assert isinstance(data, dict), "renode_peripheral_gen has to be a dictionary"
+    if not isinstance(data, dict):
+        logging.error("renode_peripheral_gen has to be a dictionary")
+        exit(1)
     if "supported_peripherals" not in data:
         return []
 
     supported_peripherals = cast(dict[str, Any], data)["supported_peripherals"]
-    assert isinstance(supported_peripherals, list), "supported_peripherals has to be a list"
+    if not isinstance(supported_peripherals, list):
+        logging.error("supported_peripherals has to be a list")
+        exit(1)
 
     resolvers = []
 
     for peripheral in supported_peripherals:
-        assert isinstance(peripheral, dict), "renode_peripheral_gen.supported_peripherals[*] has to be a dictionary"
+        if not isinstance(peripheral, dict):
+            logging.error("renode_peripheral_gen.supported_peripherals[*] has to be a dictionary")
+            exit(1)
         peripheral = cast(dict[str, Any], peripheral)
 
         target = peripheral["target"]
-        assert isinstance(target, dict), "renode_peripheral_gen.supported_peripherals[*].target has to be a dictionary"
+        if not isinstance(target, dict):
+            logging.error(
+                "renode_peripheral_gen.supported_peripherals[*].target has to be a dictionary"
+            )
+            exit(1)
         target = cast(dict[str, str], target)
 
-        ident = Identifier(target["name"], target["vendor"], target["library"])
+        if "name" not in target:
+            logging.error("renode_peripheral_gen.supported_peripherals[*].target.name has to exist")
+            exit(1)
+
+        expected_keys = set(["name", "vendor", "library", "version"])
+        keys = set(target.keys())
+        if not keys <= expected_keys:
+            unknown_keys = keys - expected_keys
+            logging.error(
+                "renode_peripheral_gen.supported_peripherals[*].target: "
+                f"unknown keys {', '.join(unknown_keys)}"
+            )
+            exit(1)
+
+        if not all(isinstance(s, str) for s in target.values()):
+            logging.error(
+                "renode_peripheral_gen.supported_peripherals[*].target: all values must be strings"
+            )
+            exit(1)
+
+        ident = Identifier(**target)
         renode_device = peripheral["renode_device"]
 
         device_resolver = RenodeDeviceFieldResolve(ident, renode_device)
@@ -378,10 +474,16 @@ def create_resolvers(mod: Design) -> list[RenodeDeviceFieldResolve]:
             continue
 
         field_map = peripheral["map"]
-        assert isinstance(field_map, list), "renode_peripheral_gen.supported_peripherals[*].map has to be a list"
+        if not isinstance(field_map, list):
+            logging.error("renode_peripheral_gen.supported_peripherals[*].map has to be a list")
+            exit(1)
 
         for field_resolver in field_map:
-            assert isinstance(field_resolver, dict), "renode_peripheral_gen.supported_peripherals[*].map[*] has to be a dictionary"
+            if not isinstance(field_resolver, dict):
+                logging.error(
+                    "renode_peripheral_gen.supported_peripherals[*].map[*] has to be a dictionary"
+                )
+                exit(1)
             field_resolver = cast(dict[str, str], field_resolver)
             dest = field_resolver["dest"]
             src = field_resolver["src"]
@@ -411,7 +513,10 @@ class FilterRule:
     def parse_pattern(pattern: str) -> "FilterRule":
         if pattern == "*":
             return FilterRule(True, None)
-        assert "*" not in pattern, "partial wildcards are not supported"
+
+        if "*" in pattern:
+            logging.error(f"partial wildcards are not supported: {pattern}")
+            exit(1)
 
         allow = not pattern.startswith("-")
 
@@ -448,43 +553,57 @@ def parse_output_maps(des: Design) -> list[OutputMap]:
 
     data = metadata.data
 
-    assert isinstance(data, dict), "renode_peripheral_gen has to be a dict"
+    if not isinstance(data, dict):
+        logging.error("renode_peripheral_gen has to be a dict")
+        exit(1)
     if "output" not in data:
         return []
 
     data = cast(dict[str, Any], data)
     outputs = data["output"]
 
-    assert isinstance(outputs, list), "renode_peripheral_gen.output has to be a list"
+    if not isinstance(outputs, list):
+        logging.error("renode_peripheral_gen.output has to be a list")
+        exit(1)
 
     output_maps: list[OutputMap] = []
 
     for output in outputs:
-        assert isinstance(output, dict),  "renode_peripheral_gen.output[*] has to be a dict"
+        if not isinstance(output, dict):
+            logging.error("renode_peripheral_gen.output[*] has to be a dict")
+            exit(1)
         output = cast(dict[str, Any], output)
 
-        assert "filename" in output
+        if "filename" not in output:
+            logging.error("filename has to exist")
+            exit(1)
+
         filename = output["filename"]
-        assert isinstance(filename, str), "renode_peripheral_gen.output[*].filename has to be a string"
+        if not isinstance(filename, str):
+            logging.error("renode_peripheral_gen.output[*].filename has to be a string")
+            exit(1)
 
         device_filter = None
         if "filter" in output:
             filter_rules = output["filter"]
-            assert isinstance(filter_rules, list) and all(
-                isinstance(rule, str) for rule in filter_rules
-            ), "renode_peripheral_gen.output[*].filter has to be a list of strings"
+            if not (
+                isinstance(filter_rules, list)
+                and all(isinstance(rule, str) for rule in filter_rules)
+            ):
+                logging.error("renode_peripheral_gen.output[*].filter has to be a list of strings")
+                exit(1)
             filter_rules = cast(list[str], filter_rules)
 
-            device_filter = DeviceFilter(
-                list(map(FilterRule.parse_pattern, filter_rules))
-            )
+            device_filter = DeviceFilter(list(map(FilterRule.parse_pattern, filter_rules)))
 
         includes = []
         if "includes" in output:
             includes = output["includes"]
-            assert isinstance(includes, list) and all(
-                isinstance(inc, str) for inc in includes
-            ),  "renode_peripheral_gen.output[*].includes has to be a list of strings"
+            if not (isinstance(includes, list) and all(isinstance(inc, str) for inc in includes)):
+                logging.error(
+                    "renode_peripheral_gen.output[*].includes has to be a list of strings"
+                )
+                exit(1)
         includes = cast(list[str], includes)
 
         output_maps.append(OutputMap(filename, device_filter, includes))
@@ -516,17 +635,13 @@ class RenodePlatform:
 
         return RenodePlatform(devices)
 
-    def render_config(
-        self, preamble: str, includes: list[str], filter: DeviceFilter | None
-    ) -> str:
+    def render_config(self, preamble: str, includes: list[str], filter: DeviceFilter | None) -> str:
         lines = []
 
         lines.append(preamble)
         lines.extend(f'using "{fname}"' for fname in includes)
         lines.extend(
-            dev.render()
-            for dev in self.devices
-            if filter is None or filter.check(dev.name)
+            dev.render() for dev in self.devices if filter is None or filter.check(dev.name)
         )
         lines.append("")
 
@@ -540,13 +655,15 @@ class RenodePeripheralGen(BasePlugin):
         self.outputs: dict[str, str] = {}
 
     def post_transform(self, ctx: BuildContext):
+        top_module = ctx.top_module
+        if not top_module:
+            logging.error("expected top module to exist")
+            exit(1)
 
-        modules: list[Module] = list(ctx.loaded_modules)
-        assert len(modules) == 1, "expected one exported module"
+        if not top_module.design:
+            logging.error("expected top-level design")
+            exit(1)
 
-        top_module = modules[0]
-
-        assert top_module.design, "expected top-level design"
         top_design = cast(Design, top_module.design)
 
         output_maps = parse_output_maps(top_design)
@@ -555,21 +672,31 @@ class RenodePeripheralGen(BasePlugin):
 
         renode_mapping = RenodeMapping.create_mapping(resolvers, top_design)
 
-        memory_map = resolve_memory_mapping(top_design, renode_mapping)
+        memory_map = resolve_memorymap(top_design, renode_mapping)
+
+        for i_name, mm in memory_map.items():
+            if mm is None:
+                logging.info(f"Resolved memory map for {i_name}: (,)")
+            else:
+                logging.info(
+                    f"Resolved memory map for {i_name}: "
+                    f"({render_hex(mm.offset, 4)}, {mm.get_aligned_size(RENODE_GUEST_PAGE_SIZE)})"
+                )
+
         platform = RenodePlatform.define(renode_mapping, memory_map)
 
         if not output_maps:
             print(platform.render_config(REPL_PREAMBLE, [], None))
 
         for output in output_maps:
-            src = platform.render_config(
-                REPL_PREAMBLE, output.includes, output.device_filter
-            )
+            src = platform.render_config(REPL_PREAMBLE, output.includes, output.device_filter)
             self.outputs[output.filename] = src
 
     def pre_output_writing(self, ctx: BuildContext, target_dir: Path):
         for filename, src in self.outputs.items():
             out_path = target_dir / filename
-            assert not out_path.exists() or out_path.is_file(), "cannot write to a directory"
+            if out_path.exists() and out_path.is_dir():
+                logging.error("cannot write to a directory")
+                exit(1)
+            logging.info(f"writing REPL: {out_path}")
             out_path.write_text(src)
-
