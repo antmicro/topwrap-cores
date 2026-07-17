@@ -1,0 +1,30 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+
+name: chipsalliance:cores:caliptra_axi:0.1
+description: Caliptra AXI subordinate implementation (conflicts with pulp-platform axi_pkg)
+filesets:
+  rtl:
+    files:
+    - src/axi/rtl/axi_pkg.sv: {}
+    - src/axi/rtl/axi_if.sv: {}
+    - src/axi/rtl/axi_addr.v: {}
+    - src/axi/rtl/axi_sub_arb.sv: {}
+    - src/axi/rtl/axi_sub_rd.sv: {}
+    - src/axi/rtl/axi_sub_wr.sv: {}
+    - src/axi/rtl/axi_sub.sv: {}
+    file_type: systemVerilogSource
+    depend:
+    - chipsalliance:cores:caliptra:0.1
+targets:
+  default:
+    filesets:
+    - rtl
+provider:
+  name: github
+  user: chipsalliance
+  repo: caliptra-rtl
+  version: 6ec0e25bc206d6a192a59c4dba98c7fee682da70

@@ -1,0 +1,30 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name: antmicro.com:topwrap-cores:el2_testbench:0.1
+filesets:
+  rtl:
+    files:
+    - testbench_waivers.vlt: {file_type: vlt}
+    - testbench/ahb_lite_2to1_mux.sv: {file_type: systemVerilogSource}
+    - testbench/ahb_lsu_dma_bridge.sv: {file_type: systemVerilogSource}
+    - testbench/ahb_sif.sv: {file_type: systemVerilogSource}
+    - testbench/axi_lsu_dma_bridge.sv: {file_type: systemVerilogSource}
+    - testbench/dasm.svi: {file_type: systemVerilogSource, is_include_file: true, include_path: testbench}
+    - testbench/icache_macros.svh: {file_type: systemVerilogSource, is_include_file: true, include_path: testbench}
+    - testbench/tb_top_pkg.sv: {file_type: systemVerilogSource}
+    - testbench/tb_top.sv: {file_type: systemVerilogSource}
+    - testbench/user_cells.sv: {file_type: systemVerilogSource}
+    - testbench/veer_wrapper.sv: {file_type: systemVerilogSource}
+    depend:
+    - antmicro.com:topwrap-cores:el2_rtl:0.1
+targets:
+  default:
+    filesets: [rtl]
+provider:
+  name: github
+  user: chipsalliance
+  repo: Cores-VeeR-EL2
+  version: 0169d669eedec31f723dde006125e22c4bf83a95

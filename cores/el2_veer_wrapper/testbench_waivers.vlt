@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Antmicro <www.antmicro.com>
+
+`verilator_config
+
+lint_off -rule WIDTHTRUNC -file "*/testbench/dasm.svi"
+lint_off -rule WIDTHEXPAND -file "*/testbench/dasm.svi"
+lint_off -rule CASEINCOMPLETE -file "*/testbench/dasm.svi"

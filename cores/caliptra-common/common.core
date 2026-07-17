@@ -1,0 +1,52 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+
+name: chipsalliance:cores:caliptra:0.1
+description: chipsalliance caliptra library
+filesets:
+  rtl:
+    files:
+    - src/caliptra_prim/rtl/caliptra_prim_module_name_macros.svh:
+        is_include_file: true
+        include_path: src/caliptra_prim/rtl
+    - src/libs/rtl/caliptra_sva.svh:
+        is_include_file: true
+        include_path: src/libs/rtl
+    - src/caliptra_prim/rtl/caliptra_prim_assert.sv:
+        is_include_file: true
+        include_path: src/caliptra_prim/rtl
+    - src/caliptra_prim/rtl/caliptra_prim_assert_dummy_macros.svh:
+        is_include_file: true
+        include_path: src/caliptra_prim/rtl
+    - src/caliptra_prim/rtl/caliptra_prim_assert_sec_cm.svh:
+        is_include_file: true
+        include_path: src/caliptra_prim/rtl
+    - src/caliptra_prim/rtl/caliptra_prim_flop_macros.sv:
+        is_include_file: true
+        include_path: src/caliptra_prim/rtl
+    - src/caliptra_prim/rtl/caliptra_prim_pkg.sv: {}
+    - src/caliptra_prim/rtl/caliptra_prim_util_pkg.sv: {}
+    - src/caliptra_prim/rtl/caliptra_prim_count_pkg.sv: {}
+    - src/caliptra_prim_generic/rtl/caliptra_prim_generic_flop.sv: {}
+    - src/caliptra_prim/rtl/caliptra_prim_flop.sv: {}
+    - src/caliptra_prim/rtl/caliptra_prim_flop_2sync.sv: {}
+    - src/caliptra_prim/rtl/caliptra_prim_fifo_sync_cnt.sv: {}
+    - src/caliptra_prim/rtl/caliptra_prim_fifo_sync.sv: {}
+    - src/libs/rtl/ahb_defines_pkg.sv: {}
+    - src/libs/rtl/ahb_slv_sif.sv: {}
+    - src/libs/rtl/skidbuffer.v: {}
+    file_type: systemVerilogSource
+    depend:
+    - antmicro.com:topwrap-cores:caliptra_waivers:0.1
+targets:
+  default:
+    filesets:
+    - rtl
+provider:
+  name: github
+  user: chipsalliance
+  repo: caliptra-rtl
+  version: 6ec0e25bc206d6a192a59c4dba98c7fee682da70

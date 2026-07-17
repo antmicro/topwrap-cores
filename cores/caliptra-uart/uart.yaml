@@ -1,0 +1,63 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+id:
+  library: topwrap-cores
+  name: uart_wrapper
+  vendor: antmicro.com
+interfaces:
+  ahb:
+    mode: subordinate
+    signals:
+      in:
+        HADDR:
+          bound:
+          - '31'
+          - '0'
+          name: haddr_i
+        HSIZE:
+          bound:
+          - '2'
+          - '0'
+          name: hsize_i
+        HTRANS:
+          bound:
+          - '1'
+          - '0'
+          name: htrans_i
+        HWDATA:
+          bound:
+          - '63'
+          - '0'
+          name: hwdata_i
+        HWRITE:
+          name: hwrite_i
+      out:
+        HRDATA:
+          bound:
+          - '63'
+          - '0'
+          name: hrdata_o
+        HRESP:
+          name: hresp_o
+    type:
+      library: topwrap-interfaces
+      name: AHBguin
+      vendor: antmicro.com
+      version: '1.0'
+    clock: uart
+    reset: uart
+signals:
+  in:
+  - name: uart_rx_i
+  - name: clk_i
+  - name: rst_ni
+  out:
+  - name: uart_tx_o
+clocks:
+  uart:
+    signal: clk_i
+resets:
+  uart:
+    signal: rst_ni
+    polarity: active low

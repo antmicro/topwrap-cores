@@ -1,0 +1,18 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name: antmicro.com:topwrap-cores:el2_config:0.1
+filesets:
+  rtl:
+    files:
+    - waivers.vlt: {file_type: vlt}
+    - snapshots/default/common_defines.vh: {file_type: verilogSource}
+    - snapshots/default/el2_pdef.vh: {is_include_file: true, include_path: snapshots/default, file_type: systemVerilogSource}
+    - snapshots/default/el2_param.vh: {is_include_file: true, include_path: snapshots/default, file_type: systemVerilogSource}
+    - snapshots/default/pd_defines.vh: {is_include_file: true, include_path: snapshots/default, file_type: verilogSource}
+    - snapshots/default/pic_map_auto.svh: {is_include_file: true, include_path: snapshots/default, file_type: systemVerilogSource}
+targets:
+  default:
+    filesets: [rtl]

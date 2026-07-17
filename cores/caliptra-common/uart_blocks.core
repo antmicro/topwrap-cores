@@ -1,0 +1,43 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+
+name: chipsalliance.org:cores:caliptra_uart
+description: Caliptra's OpenTitan-derived UART core (register block, RX/TX) and the
+  caliptra_prim primitives it depends on
+filesets:
+  rtl:
+    files:
+    - src/caliptra_prim/rtl/caliptra_prim_subreg_pkg.sv
+    - src/caliptra_prim/rtl/caliptra_prim_mubi_pkg.sv
+    - src/uart/rtl/uart_reg_pkg.sv
+    - src/caliptra_prim_generic/rtl/caliptra_prim_generic_buf.sv
+    - src/caliptra_prim/rtl/caliptra_prim_buf.sv
+    - src/caliptra_prim/rtl/caliptra_prim_cdc_rand_delay.sv
+    - src/caliptra_prim/rtl/caliptra_prim_sparse_fsm_flop.sv
+    - src/caliptra_prim/rtl/caliptra_prim_count.sv
+    - src/caliptra_prim/rtl/caliptra_prim_onehot_check.sv
+    - src/caliptra_prim/rtl/caliptra_prim_subreg_arb.sv
+    - src/caliptra_prim/rtl/caliptra_prim_subreg.sv
+    - src/caliptra_prim/rtl/caliptra_prim_subreg_ext.sv
+    - src/caliptra_prim/rtl/caliptra_prim_reg_we_check.sv
+    - src/caliptra_prim/rtl/caliptra_prim_intr_hw.sv
+    - src/libs/rtl/ahb_to_reg_adapter.sv
+    - src/uart/rtl/uart_reg_top.sv
+    - src/uart/rtl/uart_rx.sv
+    - src/uart/rtl/uart_tx.sv
+    - src/uart/rtl/uart_core.sv
+    file_type: systemVerilogSource
+    depend:
+    - chipsalliance:cores:caliptra:0.1
+targets:
+  default:
+    filesets:
+    - rtl
+provider:
+  name: github
+  user: chipsalliance
+  repo: caliptra-rtl
+  version: 6ec0e25bc206d6a192a59c4dba98c7fee682da70

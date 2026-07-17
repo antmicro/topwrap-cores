@@ -1,0 +1,39 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+
+name : antmicro.com:topwrap-cores:sram_wrapper:0.1
+
+filesets:
+  topwrap:
+    files:
+        - module.yaml :
+            file_type : topwrapModule
+  rtl:
+    files:
+      - waivers.vlt: {file_type: vlt}
+      - guineveer_sram.sv : {file_type: systemVerilogSource}
+      - sram_wrapper.sv : {file_type: systemVerilogSource}
+    depend:
+      - pulp-platform.org::axi:0.39.10
+
+targets:
+  default:
+    filesets: [rtl]
+  lint:
+    default_tool: verilator
+    filesets: [rtl]
+    tools:
+      verilator:
+        mode: lint-only
+    toplevel: sram_wrapper
+  build:
+    default_tool: verilator
+    filesets: [rtl]
+    tools:
+      verilator:
+        mode: binary
+        verilator_options: ["--timing"]
+    toplevel: sram_wrapper

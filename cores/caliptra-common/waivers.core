@@ -1,0 +1,13 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name: antmicro.com:topwrap-cores:caliptra_waivers:0.1
+filesets:
+  rtl:
+    files:
+    - waivers.vlt: {file_type: vlt}
+targets:
+  default:
+    filesets: [rtl]

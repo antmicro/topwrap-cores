@@ -1,0 +1,71 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name : antmicro.com:topwrap-cores:i3c_axi_target:0.1
+
+filesets:
+  rtl:
+    files:
+      - src/csr/csr_types.svh:
+          is_include_file: true
+      - src/csr/controller_I3CCSR_sample.svh:
+          is_include_file: true
+      - src/csr/controller_I3CCSR_covergroups.svh:
+          is_include_file: true
+      - src/csr/target_I3CCSR_covergroups.svh:
+          is_include_file: true
+      - src/csr/controller_and_target_I3CCSR_covergroups.svh:
+          is_include_file: true
+      - src/csr/target_I3CCSR_sample.svh:
+          is_include_file: true
+      - src/csr/controller_and_target_I3CCSR_sample.svh:
+          is_include_file: true
+      - src/i3c_defines.svh :
+          is_include_file : true
+      - src/i3c_wrapper.sv
+      - src/csr/controller_I3CCSR_pkg.sv
+      - src/csr/target_I3CCSR_pkg.sv
+      - src/csr/controller_and_target_I3CCSR_pkg.sv
+      - src/csr/controller_I3CCSR.sv
+      - src/csr/target_I3CCSR.sv
+      - src/csr/controller_and_target_I3CCSR.sv
+    file_type : systemVerilogSource
+    depend:
+      - chipsalliance:cores:i3c
+  topwrap:
+    files:
+      - module.yaml: { file_type : topwrapModule }
+targets:
+  default:
+    filesets: [rtl]
+  lint:
+    default_tool: verilator
+    filesets : [rtl]
+    tools:
+      verilator :
+        mode : lint-only
+        verilator_options:
+          - "-Wno-WIDTH"
+          - "-Wno-UNOPTFLAT"
+          - "-Wno-CASEINCOMPLETE"
+          - "-Wno-SYMRSVDWORD"
+          - "-Wno-ALWCOMBORDER"
+          - "-Wno-CMPCONST"
+    toplevel : i3c_axi_target
+  build:
+    default_tool: verilator
+    filesets : [rtl]
+    tools:
+      verilator :
+        mode : binary
+        verilator_options:
+          - "-Wno-WIDTH"
+          - "-Wno-UNOPTFLAT"
+          - "-Wno-CASEINCOMPLETE"
+          - "-Wno-SYMRSVDWORD"
+          - "-Wno-ALWCOMBORDER"
+          - "-Wno-CMPCONST"
+          - "--timing"
+    toplevel : i3c_axi_target

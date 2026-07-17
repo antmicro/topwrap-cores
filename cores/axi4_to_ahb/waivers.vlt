@@ -1,0 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Antmicro <www.antmicro.com>
+
+`verilator_config
+
+lint_off -rule SIDEEFFECT -file "src/antmicro.com_topwrap-cores_axi4_to_ahb_*/axi4_to_ahb.sv"

@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Antmicro <www.antmicro.com>
+
+`verilator_config
+
+// Preserve the existing third-party lint policy for FuseSoC exports.
+// The third_party layout is used by older Caliptra copyto manifests.
+lint_off -file "third_party/*"
+lint_off -file "src/chipsalliance_cores_caliptra_*/*"
+lint_off -file "src/chipsalliance.org_cores_caliptra_*/*"
+lint_off -rule MULTIDRIVEN -file "third_party/caliptra-rtl/src/axi/rtl/axi_if.sv"
+lint_off -rule MULTIDRIVEN -file "*/caliptra-rtl/src/axi/rtl/axi_if.sv"

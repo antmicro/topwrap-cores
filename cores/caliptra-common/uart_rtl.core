@@ -1,0 +1,72 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+
+name: chipsalliance.org:cores:caliptra_uart_ahb:0.1
+description: Caliptra UART with its AHB top, using shared Caliptra primitives
+filesets:
+  rtl:
+    file_type: systemVerilogSource
+    files:
+    - src/integration/rtl/config_defines.svh:
+        is_include_file: true
+        include_path: src/integration/rtl
+    - src/libs/rtl/caliptra_macros.svh:
+        is_include_file: true
+        include_path: src/libs/rtl
+    - src/caliptra_prim/rtl/caliptra_prim_assert_standard_macros.svh:
+        is_include_file: true
+        include_path: src/caliptra_prim/rtl
+    - src/caliptra_prim/rtl/caliptra_prim_assert_yosys_macros.svh:
+        is_include_file: true
+        include_path: src/caliptra_prim/rtl
+    - src/caliptra_prim/rtl/caliptra_prim_util_memload.svh:
+        is_include_file: true
+        include_path: src/caliptra_prim/rtl
+    - src/libs/rtl/caliptra_sram.sv
+    - src/libs/rtl/caliptra_ahb_srom.sv
+    - src/libs/rtl/apb_slv_sif.sv
+    - src/libs/rtl/caliptra_icg.sv
+    - src/libs/rtl/clk_gate.sv
+    - src/libs/rtl/caliptra_2ff_sync.sv
+    - src/caliptra_prim/rtl/caliptra_prim_alert_pkg.sv
+    - src/caliptra_prim/rtl/caliptra_prim_cipher_pkg.sv
+    - src/caliptra_prim/rtl/caliptra_prim_sparse_fsm_pkg.sv
+    - src/caliptra_prim/rtl/caliptra_prim_trivium_pkg.sv
+    - src/lc_ctrl/rtl/lc_ctrl_reg_pkg.sv
+    - src/lc_ctrl/rtl/lc_ctrl_state_pkg.sv
+    - src/lc_ctrl/rtl/lc_ctrl_pkg.sv
+    - src/caliptra_prim_generic/rtl/caliptra_prim_generic_flop_en.sv
+    - src/caliptra_prim/rtl/caliptra_prim_flop_en.sv
+    - src/caliptra_prim/rtl/caliptra_prim_lfsr.sv
+    - src/caliptra_prim/rtl/caliptra_prim_mubi4_sync.sv
+    - src/caliptra_prim/rtl/caliptra_prim_diff_decode.sv
+    - src/caliptra_prim/rtl/caliptra_prim_sec_anchor_buf.sv
+    - src/caliptra_prim/rtl/caliptra_prim_slicer.sv
+    - src/caliptra_prim/rtl/caliptra_prim_dom_and_2share.sv
+    - src/caliptra_prim/rtl/caliptra_prim_sec_anchor_flop.sv
+    - src/caliptra_prim/rtl/caliptra_prim_packer_fifo.sv
+    - src/caliptra_prim/rtl/caliptra_prim_max_tree.sv
+    - src/caliptra_prim/rtl/caliptra_prim_onehot_enc.sv
+    - src/caliptra_prim/rtl/caliptra_prim_mubi8_sync.sv
+    - src/caliptra_prim/rtl/caliptra_prim_lc_sync.sv
+    - src/caliptra_prim/rtl/caliptra_prim_alert_receiver.sv
+    - src/caliptra_prim/rtl/caliptra_prim_alert_sender.sv
+    - src/caliptra_prim/rtl/caliptra_prim_arbiter_ppc.sv
+    - src/caliptra_prim/rtl/caliptra_prim_sum_tree.sv
+    - src/caliptra_prim/rtl/caliptra_prim_edge_detector.sv
+    - src/caliptra_prim/rtl/caliptra_prim_trivium.sv
+    - src/uart/rtl/uart.sv
+    depend:
+    - chipsalliance.org:cores:caliptra_uart
+targets:
+  default:
+    filesets:
+    - rtl
+provider:
+  name: github
+  user: chipsalliance
+  repo: caliptra-rtl
+  version: 6ec0e25bc206d6a192a59c4dba98c7fee682da70

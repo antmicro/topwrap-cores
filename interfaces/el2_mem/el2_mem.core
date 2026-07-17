@@ -1,0 +1,12 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+
+name : antmicro.com:topwrap-interfaces:el2_mem_if
+
+filesets:
+  topwrap:
+    files:
+        - el2_mem.yaml : { file_type : topwrapInterface }

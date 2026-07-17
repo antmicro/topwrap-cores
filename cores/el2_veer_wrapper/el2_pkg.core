@@ -1,0 +1,22 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name: antmicro.com:topwrap-cores:el2_pkg:0.1
+description: Shared VeeR EL2 declarations for the CPU and AXI-to-AHB bridge
+filesets:
+  rtl:
+    files:
+    - design/include/el2_def.sv: {file_type: systemVerilogSource}
+    - design/lib/beh_lib.sv: {file_type: systemVerilogSource}
+    depend:
+    - antmicro.com:topwrap-cores:el2_config:0.1
+targets:
+  default:
+    filesets: [rtl]
+provider:
+  name: github
+  user: chipsalliance
+  repo: Cores-VeeR-EL2
+  version: 0169d669eedec31f723dde006125e22c4bf83a95

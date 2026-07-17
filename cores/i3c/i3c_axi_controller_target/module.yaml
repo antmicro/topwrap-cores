@@ -1,0 +1,98 @@
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+id:
+  library: topwrap-cores
+  name: i3c_axi_controller_target
+  vendor: antmicro.com
+  version: '0.1'
+clocks:
+  clk:
+    signal: clk_i
+resets:
+  rst:
+    signal: rst_ni
+    polarity: active low
+interfaces:
+  AXI4:
+    mode: subordinate
+    signals:
+      in:
+        araddr: {bound: [AxiAddrWidth-1, '0'], name: araddr_i}
+        arburst: {bound: ['             1', '0'], name: arburst_i}
+        arid: {bound: ['  AxiIdWidth-1', '0'], name: arid_i}
+        arlen: {bound: ['             7', '0'], name: arlen_i}
+        arlock: {name: arlock_i}
+        arsize: {bound: ['             2', '0'], name: arsize_i}
+        aruser: {bound: [AxiUserWidth-1, '0'], name: aruser_i}
+        arvalid: {name: arvalid_i}
+        awaddr: {bound: [AxiAddrWidth-1, '0'], name: awaddr_i}
+        awburst: {bound: ['             1', '0'], name: awburst_i}
+        awid: {bound: ['  AxiIdWidth-1', '0'], name: awid_i}
+        awlen: {bound: ['             7', '0'], name: awlen_i}
+        awlock: {name: awlock_i}
+        awsize: {bound: ['             2', '0'], name: awsize_i}
+        awuser: {bound: [AxiUserWidth-1, '0'], name: awuser_i}
+        awvalid: {name: awvalid_i}
+        bready: {name: bready_i}
+        rready: {name: rready_i}
+        wdata: {bound: ['  AxiDataWidth-1', '0'], name: wdata_i}
+        wlast: {name: wlast_i}
+        wstrb: {bound: [AxiDataWidth/8-1, '0'], name: wstrb_i}
+        wuser: {bound: ['  AxiUserWidth-1', '0'], name: wuser_i}
+        wvalid: {name: wvalid_i}
+      out:
+        arready: {name: arready_o}
+        awready: {name: awready_o}
+        bid: {bound: ['  AxiIdWidth-1', '0'], name: bid_o}
+        bresp: {bound: ['             1', '0'], name: bresp_o}
+        buser: {bound: [AxiUserWidth-1, '0'], name: buser_o}
+        bvalid: {name: bvalid_o}
+        rdata: {bound: [AxiDataWidth-1, '0'], name: rdata_o}
+        rid: {bound: ['  AxiIdWidth-1', '0'], name: rid_o}
+        rlast: {name: rlast_o}
+        rresp: {bound: ['             1', '0'], name: rresp_o}
+        ruser: {bound: [AxiUserWidth-1, '0'], name: ruser_o}
+        rvalid: {name: rvalid_o}
+        wready: {name: wready_o}
+    type:
+      library: topwrap-interfaces
+      name: axi4
+      vendor: antmicro.com
+      version: '0.1'
+parameters:
+  AxiAddrWidth: '12'
+  AxiDataWidth: '32'
+  AxiIdWidth: '8'
+  AxiUserWidth: '32'
+  ControllerEn: '1'
+  CsrAddrWidth: "(ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_MIN_ADDR_WIDTH\
+    \ :\n                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_MIN_ADDR_WIDTH\
+    \ :\n                                                            target_I3CCSR_pkg::target_I3CCSR_MIN_ADDR_WIDTH"
+  CsrDataWidth: "(ControllerEn && TargetEn) ? controller_and_target_I3CCSR_pkg::controller_and_target_I3CCSR_DATA_WIDTH\
+    \ :\n                               (ControllerEn)             ? controller_I3CCSR_pkg::controller_I3CCSR_DATA_WIDTH\
+    \ :\n                                                            target_I3CCSR_pkg::target_I3CCSR_DATA_WIDTH"
+  DatAw: i3c_pkg::DatAw
+  DctAw: i3c_pkg::DctAw
+  NumPrivIds: '4'
+  TargetEn: '1'
+signals:
+  in:
+    - {name: clk_i}
+    - {name: sda_i}
+    - {name: peripheral_reset_done_i}
+    - {name: scl_i}
+    - {name: priv_ids_i}
+    - {name: disable_id_filtering_i}
+    - {name: rst_ni}
+  out:
+    - {name: irq_o}
+    - {name: recovery_image_activated_o}
+    - {name: sda_oe}
+    - {name: sel_od_pp_o}
+    - {name: recovery_payload_available_o}
+    - {name: scl_oe}
+    - {name: peripheral_reset_o}
+    - {name: sda_o}
+    - {name: escalated_reset_o}
+    - {name: scl_o}

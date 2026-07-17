@@ -1,0 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Antmicro <www.antmicro.com>
+
+`verilator_config
+
+// Preserve the existing third-party lint policy for exported VeeR RTL.
+lint_off -file "src/antmicro.com_topwrap-cores_el2_*/*"

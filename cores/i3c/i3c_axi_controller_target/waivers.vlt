@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Antmicro <www.antmicro.com>
+
+`verilator_config
+
+// The generated DCT decoder compares a 12-bit address against 12'hfff.
+// Update these line numbers if the CSR decoder is regenerated.
+lint_off -rule CMPCONST -file "*/src/csr/controller_and_target_I3CCSR.sv" -lines 447-448

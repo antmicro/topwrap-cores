@@ -1,0 +1,75 @@
+CAPI=2:
+
+# Copyright (c) 2026 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name: antmicro.com:topwrap-cores:el2_rtl:0.1
+filesets:
+  rtl:
+    files:
+    - design/lib/el2_assert.sv: {file_type: systemVerilogSource}
+    - design/dmi/dmi_mux.v: {file_type: verilogSource}
+    - design/dmi/dmi_wrapper.v: {file_type: verilogSource}
+    - design/dmi/dmi_jtag_to_core_sync.v: {file_type: verilogSource}
+    - design/dmi/rvjtag_tap.v: {file_type: verilogSource}
+    - design/dbg/el2_dbg.sv: {file_type: systemVerilogSource}
+    - design/dec/el2_dec.sv: {file_type: systemVerilogSource}
+    - design/dec/el2_dec_decode_ctl.sv: {file_type: systemVerilogSource}
+    - design/dec/el2_dec_gpr_ctl.sv: {file_type: systemVerilogSource}
+    - design/dec/el2_dec_ib_ctl.sv: {file_type: systemVerilogSource}
+    - design/dec/el2_dec_pmp_ctl.sv: {file_type: systemVerilogSource}
+    - design/dec/el2_dec_tlu_ctl.sv: {file_type: systemVerilogSource}
+    - design/dec/el2_dec_trigger.sv: {file_type: systemVerilogSource}
+    - design/el2_dma_ctrl.sv: {file_type: systemVerilogSource}
+    - design/el2_lockstep_pkg.sv: {file_type: systemVerilogSource}
+    - design/el2_mem.sv: {file_type: systemVerilogSource}
+    - design/el2_mubi_pkg.sv: {file_type: systemVerilogSource}
+    - design/el2_pic_ctrl.sv: {file_type: systemVerilogSource}
+    - design/el2_pmp.sv: {file_type: systemVerilogSource}
+    - design/el2_veer.sv: {file_type: systemVerilogSource}
+    - design/el2_veer_lockstep.sv: {file_type: systemVerilogSource}
+    - design/el2_veer_wrapper.sv: {file_type: systemVerilogSource}
+    - design/exu/el2_exu.sv: {file_type: systemVerilogSource}
+    - design/exu/el2_exu_alu_ctl.sv: {file_type: systemVerilogSource}
+    - design/exu/el2_exu_div_ctl.sv: {file_type: systemVerilogSource}
+    - design/exu/el2_exu_mul_ctl.sv: {file_type: systemVerilogSource}
+    - design/ifu/el2_ifu.sv: {file_type: systemVerilogSource}
+    - design/ifu/el2_ifu_aln_ctl.sv: {file_type: systemVerilogSource}
+    - design/ifu/el2_ifu_bp_ctl.sv: {file_type: systemVerilogSource}
+    - design/ifu/el2_ifu_compress_ctl.sv: {file_type: systemVerilogSource}
+    - design/ifu/el2_ifu_ic_mem.sv: {file_type: systemVerilogSource}
+    - design/ifu/el2_ifu_iccm_mem.sv: {file_type: systemVerilogSource}
+    - design/ifu/el2_ifu_ifc_ctl.sv: {file_type: systemVerilogSource}
+    - design/ifu/el2_ifu_mem_ctl.sv: {file_type: systemVerilogSource}
+    - design/ifu/el2_ifu_tb_memread.sv: {file_type: systemVerilogSource}
+    - {design/include/el2_dec_csr_equ_m.svh: {is_include_file: true, file_type: systemVerilogSource}}
+    - {design/include/el2_dec_csr_equ_mu.svh: {is_include_file: true, file_type: systemVerilogSource}}
+    - design/lib/ahb_to_axi4.sv: {file_type: systemVerilogSource}
+    - design/lib/el2_lib.sv: {file_type: systemVerilogSource}
+    - design/lib/el2_mem_if.sv: {file_type: systemVerilogSource}
+    - design/lib/el2_prim_buf.sv: {file_type: systemVerilogSource}
+    - design/lib/el2_prim_generic_buf.sv: {file_type: systemVerilogSource}
+    - design/lib/el2_regfile_if.sv: {file_type: systemVerilogSource}
+    - design/lib/mem_lib.sv: {file_type: systemVerilogSource}
+    - design/lsu/el2_lsu.sv: {file_type: systemVerilogSource}
+    - design/lsu/el2_lsu_addrcheck.sv: {file_type: systemVerilogSource}
+    - design/lsu/el2_lsu_bus_buffer.sv: {file_type: systemVerilogSource}
+    - design/lsu/el2_lsu_bus_intf.sv: {file_type: systemVerilogSource}
+    - design/lsu/el2_lsu_clkdomain.sv: {file_type: systemVerilogSource}
+    - design/lsu/el2_lsu_dccm_ctl.sv: {file_type: systemVerilogSource}
+    - design/lsu/el2_lsu_dccm_mem.sv: {file_type: systemVerilogSource}
+    - design/lsu/el2_lsu_ecc.sv: {file_type: systemVerilogSource}
+    - design/lsu/el2_lsu_lsc_ctl.sv: {file_type: systemVerilogSource}
+    - design/lsu/el2_lsu_stbuf.sv: {file_type: systemVerilogSource}
+    - design/lsu/el2_lsu_trigger.sv: {file_type: systemVerilogSource}
+    depend:
+    - antmicro.com:topwrap-cores:el2_pkg:0.1
+    - antmicro.com:topwrap-cores:axi4_to_ahb:0.1
+targets:
+  default:
+    filesets: [rtl]
+provider:
+  name: github
+  user: chipsalliance
+  repo: Cores-VeeR-EL2
+  version: 0169d669eedec31f723dde006125e22c4bf83a95

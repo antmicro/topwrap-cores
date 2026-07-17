@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 Antmicro <www.antmicro.com>
+
+`verilator_config
+
+// Preserve the existing third-party lint policy for exported I3C RTL.
+lint_off -file "src/chipsalliance_cores_i3c_*/*"
+// This rule needs to be disabled explicitly even with the file lint policy.
+lint_off -rule SYMRSVDWORD -file "*/src/i3c_pkg.sv"
