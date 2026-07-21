@@ -18,13 +18,6 @@ jobs:
         with:
           name: topwrap_axi_core_plugin
           path: cores/topwrap_axi_core_plugin/dist/*.whl
-      - name: Build topwrap-ipxact-parser
-        run: uv build topwrap-ipxact-parser
-      - name: Upload topwrap-ipxact-parser wheel as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: topwrap_ipxact_parser
-          path: topwrap-ipxact-parser/dist/*.whl
 
   publish-package:
     runs-on: ubuntu-22.04
@@ -33,10 +26,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: topwrap_axi_core_plugin
-          path: dist
-      - uses: actions/download-artifact@v4
-        with:
-          name: topwrap_ipxact_parser
           path: dist
       - uses: pyTooling/Actions/releaser@r0
         with:
